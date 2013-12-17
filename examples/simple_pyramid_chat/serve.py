@@ -1,9 +1,6 @@
-from gevent import monkey;
-
-from modules.socketio.server import SocketIOServer
+from socketio.server import SocketIOServer
 from pyramid.paster import get_app
-
-monkey.patch_all()
+from gevent import monkey; monkey.patch_all()
 
 if __name__ == '__main__':
 

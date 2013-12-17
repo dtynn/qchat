@@ -17,8 +17,8 @@ import gevent
 from gevent.queue import Queue
 from gevent.event import Event
 
-from modules.socketio.defaultjson import default_json_loads, default_json_dumps
-from modules.socketio import packet
+from socketio import packet
+from socketio.defaultjson import default_json_loads, default_json_dumps
 
 
 log = logging.getLogger(__name__)

@@ -1,8 +1,9 @@
 from pyramid.view import view_config
-from modules.socketio import socketio_manage
-from modules.socketio.namespace import BaseNamespace
-from modules.socketio.mixins import RoomsMixin, BroadcastMixin
-
+import gevent
+from socketio import socketio_manage
+from socketio.namespace import BaseNamespace
+from socketio.mixins import RoomsMixin, BroadcastMixin
+from gevent import socket
 
 def index(request):
     """ Base view to load our template """

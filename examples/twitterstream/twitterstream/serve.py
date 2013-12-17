@@ -3,9 +3,9 @@ import gevent
 import tweetstream
 import getpass
 
-from modules.socketio import socketio_manage
-from modules.socketio.server import SocketIOServer
-from modules.socketio.namespace import BaseNamespace
+from socketio import socketio_manage
+from socketio.server import SocketIOServer
+from socketio.namespace import BaseNamespace
 
 
 def broadcast_msg(server, ns_name, event, *args):

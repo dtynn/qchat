@@ -1,15 +1,13 @@
 import re
 import unicodedata
-
-from gevent import monkey
-
 from socketio import socketio_manage
-from modules.socketio.namespace import BaseNamespace
+from socketio.namespace import BaseNamespace
 from socketio.mixins import RoomsMixin, BroadcastMixin
 from werkzeug.exceptions import NotFound
+from gevent import monkey
+
 from flask import Flask, Response, request, render_template, url_for, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
-
 
 monkey.patch_all()
 

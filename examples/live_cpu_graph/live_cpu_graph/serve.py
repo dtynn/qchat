@@ -2,10 +2,10 @@ from gevent import monkey; monkey.patch_all()
 import gevent
 import psutil
 
-from modules.socketio import socketio_manage
-from modules.socketio.server import SocketIOServer
-from modules.socketio.namespace import BaseNamespace
-from modules.socketio.mixins import BroadcastMixin
+from socketio import socketio_manage
+from socketio.server import SocketIOServer
+from socketio.namespace import BaseNamespace
+from socketio.mixins import BroadcastMixin
 
 
 class CPUNamespace(BaseNamespace, BroadcastMixin):

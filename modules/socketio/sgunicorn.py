@@ -1,9 +1,7 @@
 import os
-import time
-from datetime import datetime
-from functools import partial
-
 import gevent
+import time
+
 from gevent.pool import Pool
 from gevent.server import StreamServer
 
@@ -11,10 +9,13 @@ from gunicorn.workers.ggevent import GeventPyWSGIWorker
 from gunicorn.workers.ggevent import PyWSGIHandler
 from gunicorn.workers.ggevent import GeventResponse
 from gunicorn import version_info as gunicorn_version
-from modules.socketio.server import SocketIOServer
+from socketio.server import SocketIOServer
 from socketio.handler import SocketIOHandler
+
 from geventwebsocket.handler import WebSocketHandler
 
+from datetime import datetime
+from functools import partial
 
 class GunicornWSGIHandler(PyWSGIHandler, SocketIOHandler):
     pass

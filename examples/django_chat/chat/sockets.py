@@ -1,8 +1,8 @@
 import logging
 
-from modules.socketio.namespace import BaseNamespace
-from modules.socketio.mixins import RoomsMixin, BroadcastMixin
-from modules.socketio.sdjango import namespace
+from socketio.namespace import BaseNamespace
+from socketio.mixins import RoomsMixin, BroadcastMixin
+from socketio.sdjango import namespace
 
 @namespace('/chat')
 class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):

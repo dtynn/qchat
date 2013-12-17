@@ -1,8 +1,8 @@
+import redis
 from json import loads
 from json import dumps
 
-import redis
-from modules.socketio.namespace import BaseNamespace
+from socketio.namespace import BaseNamespace
 from socketio import socketio_manage
 
 

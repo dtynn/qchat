@@ -10,7 +10,7 @@ from django.core.handlers.wsgi import WSGIHandler
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.commands.runserver import naiveip_re, DEFAULT_PORT
 from django.utils.autoreload import code_changed, restart_with_reloader
-from modules.socketio.server import SocketIOServer
+from socketio.server import SocketIOServer
 
 
 RELOAD = False

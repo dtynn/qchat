@@ -1,12 +1,10 @@
 import sys
 import re
+import gevent
 import urlparse
 
-import gevent
 from gevent.pywsgi import WSGIHandler
-
-from modules.socketio import transports
-
+from socketio import transports
 
 class SocketIOHandler(WSGIHandler):
     RE_REQUEST_URL = re.compile(r"""

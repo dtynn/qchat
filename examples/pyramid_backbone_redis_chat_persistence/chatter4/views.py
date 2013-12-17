@@ -1,10 +1,14 @@
+import redis
 from json import loads
 from json import dumps
 
-import redis
 from chatter4.models import DBSession
 from chatter4.models import Chat
-from modules.socketio.namespace import BaseNamespace
+
+from json import loads
+from json import dumps
+
+from socketio.namespace import BaseNamespace
 from socketio import socketio_manage
 
 

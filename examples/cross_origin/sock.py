@@ -1,10 +1,7 @@
-from gevent import monkey;
-from modules.socketio import namespace, server
-
-monkey.patch_all()
+from gevent import monkey; monkey.patch_all()
 
 from bottle import Bottle, request
-from modules.socketio import socketio_manage
+from socketio import server, namespace, socketio_manage
 
 app = Bottle()
 
