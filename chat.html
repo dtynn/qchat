@@ -2,15 +2,15 @@
 <html>
   <head>
     <link href="static/css/style.css" rel="stylesheet">
-    <script type="text/javascript" src="static/jquery-1.6.1.min.js"></script>
-    <script type="text/javascript" src="static/socket.io.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.6.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/socket.io.js"></script>
     <script>    
 
-WEB_SOCKET_SWF_LOCATION = "/static/WebSocketMain.swf";
+WEB_SOCKET_SWF_LOCATION = "/static/swf/WebSocketMain.swf";
 WEB_SOCKET_DEBUG = true;
 
 // socket.io specific code
-var socket = io.connect();
+var socket = io.connect('http://test.com:18080');
 
 $(window).bind("beforeunload", function() {
     socket.disconnect();
@@ -46,6 +46,7 @@ socket.on('error', function (e) {
     message('System', e ? e : 'A unknown error occurred');
 });
 
+
 function message (from, msg) {
     $('#lines').append($('<p>').append($('<b>').text(from), msg));
 }
@@ -69,6 +70,10 @@ $(function () {
 	    clear();
 	    $('#lines').get(0).scrollTop = 10000000;
 	    return false;
+    });
+
+    $('#get_token').click(function(){
+        socket.emit('uptoken');
     });
 
     function clear () {
