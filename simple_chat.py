@@ -45,12 +45,10 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
 
     def recv_message(self, message):
         print "PING!!!", message
-        return
+        return message
 
-    def on_uptoken(self):
-        print 'AAAAAAA'
-        self.emit('token', {'token': 'abcde'})
-        return
+    def on_upload(self, data):
+        return ['token']
 
 
 class Application(object):

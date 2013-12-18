@@ -131,10 +131,15 @@
 #send-message input:focus {
   outline: 0;
 }
-#send-message button {
+#send-message #btn_send {
   position: absolute;
   top: 5px;
   right: 5px;
+}
+#send-message #btn_upload {
+    position: absolute;
+    top: 5px;
+    right: 55px;
 }
 button {
   margin: 0;

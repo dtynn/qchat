@@ -9,11 +9,21 @@
         WEB_SOCKET_SWF_LOCATION = "/static/swf/WebSocketMain.swf";
         WEB_SOCKET_DEBUG = true;
 
-        chat = {
+        var chat = {
             _socket: null,
             _debug: false,
             init: function() {
                 this.connect();
+                this.bind()
+            },
+            bind: function() {
+                this._socket.on('connect', this.on_connect);
+                this._socket.on('announcement', this.on_announcement);
+                this._socket.on('nicknames', this.on_nicknames);
+                this._socket.on('msg_to_room', this.on_msg_to_room);
+                this._socket.on('reconnect', this.on_reconnect);
+                this._socket.on('reconnecting', this.on_reconnecting);
+                this._socket.on('error', this.on_error);
             },
             connect: function() {
                 this.disconnect();
@@ -26,68 +36,73 @@
                     try {
                         this._socket.disconnect();
                     } catch (e) {
-                        this.onerror(e);
+                        this.error_msg(e);
                     }
                 }
                 this._socket = null;
             },
-            onerror: function(e) {
+            emit: function(event, data, callback) {
+                if (this._socket !== null) {
+                    if (callback !== undefined) {
+                        this._socket.emit(event, data, callback);
+                    } else {
+                        this._socket.emit(event, data);
+                    }
+                } else {
+                    this.error_msg('not connected');
+                }
+            },
+            //recv handlers
+            on_connect: function() {
+                $('#chat').addClass('connected');
+            },
+            on_announcement: function(msg) {
+                $('#lines').append($('<p>').append($('<em>').text(msg)));
+            },
+            on_nicknames: function(nicknames) {
+                $('#nicknames').empty().append($('<span>Online: </span>'));
+                for (var i in nicknames) {
+                    $('#nicknames').append($('<b>').text(nicknames[i]));
+                }
+            },
+            on_msg_to_room: function(from, to) {
+                chat.chat_msg(from, to);
+            },
+            on_reconnect: function() {
+                $('#lines').remove();
+                chat.chat_msg('System', 'Reconnected to the server');
+            },
+            on_reconnecting: function() {
+                chat.chat_msg('System', 'Attempting to re-connect to the server');
+            },
+            on_error: function(e) {
+                chat.chat_msg('System', e ? e : 'A unknown error occurred');
+            },
+            //send handlers
+            send_nickname: function() {
+
+            },
+            //render
+            chat_msg: function(from, msg){
+                $('#lines').append($('<p>').append($('<b>').text(from), msg));
+            },
+            error_msg: function(e) {
                 if (this._debug === true) {
                     console.log(e);
                 }
             }
+
         };
-
-        $(window).bind("beforeunload", function() {
-            chat._socket.disconnect();
-        });
-
-        // socket.io specific code
-        var socket = io.connect('http://test.com:18080');
-
-        $(window).bind("beforeunload", function() {
-            socket.disconnect();
-        });
-
-        socket.on('connect', function () {
-            $('#chat').addClass('connected');
-        });
-
-        socket.on('announcement', function (msg) {
-            $('#lines').append($('<p>').append($('<em>').text(msg)));
-        });
-
-        socket.on('nicknames', function (nicknames) {
-            $('#nicknames').empty().append($('<span>Online: </span>'));
-            for (var i in nicknames) {
-                $('#nicknames').append($('<b>').text(nicknames[i]));
-            }
-        });
-
-        socket.on('msg_to_room', message);
-
-        socket.on('reconnect', function () {
-            $('#lines').remove();
-            message('System', 'Reconnected to the server');
-        });
-
-        socket.on('reconnecting', function () {
-            message('System', 'Attempting to re-connect to the server');
-        });
-
-        socket.on('error', function (e) {
-            message('System', e ? e : 'A unknown error occurred');
-        });
-
-
-        function message (from, msg) {
-            $('#lines').append($('<p>').append($('<b>').text(from), msg));
-        }
 
         // DOM manipulation
         $(function () {
+            chat.init();
+
+            $(window).bind("beforeunload", function() {
+                chat._socket.disconnect();
+            });
             $('#set-nickname').submit(function (ev) {
-                socket.emit('nickname', $('#nick').val(), function (set) {
+                chat.emit('nickname', $('#nick').val(), function (set) {
                     if (!set) {
                         clear();
                         return $('#chat').addClass('nickname-set');
@@ -97,16 +112,19 @@
                 return false;
             });
 
-            $('#send-message').submit(function () {
-                message('me', $('#message').val());
-                socket.emit('user message', $('#message').val());
-                clear();
-                $('#lines').get(0).scrollTop = 10000000;
+            $('#btn_upload').click(function(){
+                chat.emit('upload', null, function(data){
+                    alert(data);
+                });
                 return false;
             });
 
-            $('#get_token').click(function(){
-                socket.emit('uptoken');
+            $('#send-message').submit(function () {
+                chat.chat_msg('me', $('#message').val());
+                chat.emit('user message', $('#message').val());
+                clear();
+                $('#lines').get(0).scrollTop = 10000000;
+                return false;
             });
 
             function clear () {
@@ -133,7 +151,8 @@
     </div>
     <form id="send-message">
         <input id="message">
-        <button>Send</button>
+        <button type="submit" id="btn_send">Send</button>
+        <button id="btn_upload">Pic</button>
     </form>
 </div>
 </body>
