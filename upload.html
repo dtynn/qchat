@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Qiniu JavaScript DEMO</title>
+
+  <script src="/static/js/qiniu.js"></script>
+  <style>
+    #previews {
+      border: 5px dashed #DDD;
+      width: 80%;
+      height: 30em;
+      padding: 1em;
+      margin: 2em 1em;
+    }
+  </style>
+</head>
+<body>
+  <button id="select">SELECT</button>
+  <div id="previews"></div>
+
+  <script>
+    var buckets = qiniu.bucket('qiniu-sdk-test', {
+      putToken: '%s'
+    });
+
+    qiniu
+      .bind(document.getElementById('select'), {})
+      .on('file', function(file) {
+        document.getElementById('previews').style.border = '5px dashed #DDD';
+
+        buckets.putFile('aa', file, {}, function(err, reply) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('success');
+            }
+          });
+
+      });
+  </script>
+</body>
+</html>

@@ -141,7 +141,7 @@
     top: 5px;
     right: 55px;
 }
-button {
+.btn {
   margin: 0;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -166,8 +166,8 @@ button {
   text-align: center;
   text-shadow: 0 -1px 1px #2d6dc0;
 }
-button:hover,
-button.hover {
+.btn:hover,
+.btn.hover {
   background: darker;
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #43a1f7), color-stop(1, #2e70c4));
   background: -webkit-linear-gradient(top, #43a1f7 0%, #2e70c4 100%);
@@ -177,15 +177,15 @@ button.hover {
   cursor: pointer;
   text-shadow: 0 -1px 1px #2c6bbb;
 }
-button:active,
-button.active {
+.btn:active,
+.btn.active {
   background: #2e70c4;
   border: 1px solid #2e70c4;
   border-bottom: 1px solid #2861aa;
   text-shadow: 0 -1px 1px #2b67b5;
 }
-button:focus,
-button.focus {
+.btn:focus,
+.btn.focus {
   outline: none;
   -webkit-box-shadow: 0 1px 0 0 rgba(255,255,255,0.4), 0 0 4px 0 #377ad0;
   -moz-box-shadow: 0 1px 0 0 rgba(255,255,255,0.4), 0 0 4px 0 #377ad0;

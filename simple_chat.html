@@ -4,134 +4,7 @@
     <link href="static/css/style.css" rel="stylesheet">
     <script type="text/javascript" src="/static/js/jquery-1.6.1.min.js"></script>
     <script type="text/javascript" src="/static/js/socket.io.js"></script>
-    <script>
-
-        WEB_SOCKET_SWF_LOCATION = "/static/swf/WebSocketMain.swf";
-        WEB_SOCKET_DEBUG = true;
-
-        var chat = {
-            _socket: null,
-            _debug: false,
-            init: function() {
-                this.connect();
-                this.bind()
-            },
-            bind: function() {
-                this._socket.on('connect', this.on_connect);
-                this._socket.on('announcement', this.on_announcement);
-                this._socket.on('nicknames', this.on_nicknames);
-                this._socket.on('msg_to_room', this.on_msg_to_room);
-                this._socket.on('reconnect', this.on_reconnect);
-                this._socket.on('reconnecting', this.on_reconnecting);
-                this._socket.on('error', this.on_error);
-            },
-            connect: function() {
-                this.disconnect();
-                this._socket = io.connect('http://test.com:18080', {
-                    transports: ['websocket', 'flashsocket']
-                });
-            },
-            disconnect: function() {
-                if (this._socket !== null) {
-                    try {
-                        this._socket.disconnect();
-                    } catch (e) {
-                        this.error_msg(e);
-                    }
-                }
-                this._socket = null;
-            },
-            emit: function(event, data, callback) {
-                if (this._socket !== null) {
-                    if (callback !== undefined) {
-                        this._socket.emit(event, data, callback);
-                    } else {
-                        this._socket.emit(event, data);
-                    }
-                } else {
-                    this.error_msg('not connected');
-                }
-            },
-            //recv handlers
-            on_connect: function() {
-                $('#chat').addClass('connected');
-            },
-            on_announcement: function(msg) {
-                $('#lines').append($('<p>').append($('<em>').text(msg)));
-            },
-            on_nicknames: function(nicknames) {
-                $('#nicknames').empty().append($('<span>Online: </span>'));
-                for (var i in nicknames) {
-                    $('#nicknames').append($('<b>').text(nicknames[i]));
-                }
-            },
-            on_msg_to_room: function(from, to) {
-                chat.chat_msg(from, to);
-            },
-            on_reconnect: function() {
-                $('#lines').remove();
-                chat.chat_msg('System', 'Reconnected to the server');
-            },
-            on_reconnecting: function() {
-                chat.chat_msg('System', 'Attempting to re-connect to the server');
-            },
-            on_error: function(e) {
-                chat.chat_msg('System', e ? e : 'A unknown error occurred');
-            },
-            //send handlers
-            send_nickname: function() {
-
-            },
-            //render
-            chat_msg: function(from, msg){
-                $('#lines').append($('<p>').append($('<b>').text(from), msg));
-            },
-            error_msg: function(e) {
-                if (this._debug === true) {
-                    console.log(e);
-                }
-            }
-
-        };
-
-        // DOM manipulation
-        $(function () {
-            chat.init();
-
-            $(window).bind("beforeunload", function() {
-                chat._socket.disconnect();
-            });
-            $('#set-nickname').submit(function (ev) {
-                chat.emit('nickname', $('#nick').val(), function (set) {
-                    if (!set) {
-                        clear();
-                        return $('#chat').addClass('nickname-set');
-                    }
-                    $('#nickname-err').css('visibility', 'visible');
-                });
-                return false;
-            });
-
-            $('#btn_upload').click(function(){
-                chat.emit('upload', null, function(data){
-                    alert(data);
-                });
-                return false;
-            });
-
-            $('#send-message').submit(function () {
-                chat.chat_msg('me', $('#message').val());
-                chat.emit('user message', $('#message').val());
-                clear();
-                $('#lines').get(0).scrollTop = 10000000;
-                return false;
-            });
-
-            function clear () {
-                $('#message').val('').focus();
-            };
-        });
-    </script>
+    <script type="text/javascript" src="/static/js/qiniu.js"></script>
 </head>
 <body>
 <div id="chat">
@@ -149,11 +22,184 @@
         <div id="nicknames"><span>Online:</span></div>
         <div id="lines"></div>
     </div>
+    <a class="btn" id="btn_upload">Pic</a>
     <form id="send-message">
         <input id="message">
-        <button type="submit" id="btn_send">Send</button>
-        <button id="btn_upload">Pic</button>
+        <button class="btn" type="submit" id="btn_send">Send</button>
     </form>
 </div>
 </body>
+<script>
+
+    WEB_SOCKET_SWF_LOCATION = "/static/swf/WebSocketMain.swf";
+    WEB_SOCKET_DEBUG = true;
+
+    var chat = {
+        _socket: null,
+        _debug: false,
+        init: function() {
+            this.connect();
+            this.bind()
+        },
+        bind: function() {
+            this._socket.on('connect', this.on_connect);
+            this._socket.on('announcement', this.on_announcement);
+            this._socket.on('nicknames', this.on_nicknames);
+            this._socket.on('msg_to_room', this.on_msg_to_room);
+            this._socket.on('reconnect', this.on_reconnect);
+            this._socket.on('reconnecting', this.on_reconnecting);
+            this._socket.on('error', this.on_error);
+        },
+        connect: function() {
+            this.disconnect();
+            this._socket = io.connect('http://test.com:18080', {
+                transports: ['websocket', 'flashsocket']
+            });
+        },
+        disconnect: function() {
+            if (this._socket !== null) {
+                try {
+                    this._socket.disconnect();
+                } catch (e) {
+                    this.error_msg(e);
+                }
+            }
+            this._socket = null;
+        },
+        emit: function(event) {
+            if (this._socket !== null) {
+                var args = Array.prototype.slice.call(arguments, 0);
+                this._socket.emit.apply(this._socket, args);
+            } else {
+                this.error_msg('not connected');
+            }
+        },
+        //recv handlers
+        on_connect: function() {
+            $('#chat').addClass('connected');
+        },
+        on_announcement: function(msg) {
+            $('#lines').append($('<p>').append($('<em>').text(msg)));
+        },
+        on_nicknames: function(nicknames) {
+            $('#nicknames').empty().append($('<span>Online: </span>'));
+            for (var i in nicknames) {
+                $('#nicknames').append($('<b>').text(nicknames[i]));
+            }
+        },
+        on_msg_to_room: function(from, to) {
+            chat.chat_msg(from, to);
+        },
+        on_reconnect: function() {
+            $('#lines').remove();
+            chat.chat_msg('System', 'Reconnected to the server');
+        },
+        on_reconnecting: function() {
+            chat.chat_msg('System', 'Attempting to re-connect to the server');
+        },
+        on_error: function(e) {
+            chat.chat_msg('System', e ? e : 'A unknown error occurred');
+        },
+        //send handlers
+        send_nickname: function() {
+
+        },
+        //render
+        chat_msg: function(from, msg){
+            $('#lines').append($('<p>').append($('<b>').text(from), msg));
+        },
+        error_msg: function(e) {
+            if (this._debug === true) {
+                console.log(e);
+            }
+        }
+
+    };
+
+    /** var uploader = {
+        _bucket: null,
+        init: function(){
+            this.bucket_init('a', 'b')
+            qiniu.bind(document.getElementById('btn_upload'), {}).
+                    on('file', function(file) {
+                        this.upload(file);
+                    })
+        },
+        upload: function(file) {
+            if (this._bucket !== null) {
+                this._bucket.putFile(null, file, {}, function(err, reply){
+                    if (err) {
+                        console.log('up err');
+                    } else {
+                        console.log(reply);
+                    }
+                })
+            } else {
+                console.log('no bucket')
+            }
+        },
+        bucket_init: function(bucket, token) {
+            this._bucket = qiniu.bucket(bucket, {
+                putToken: token
+            });
+        }
+    }; **/
+
+    // DOM manipulation
+    $(function () {
+        chat.init();
+        //uploader.init();
+
+        $(window).bind("beforeunload", function() {
+            chat._socket.disconnect();
+        });
+
+        var buckets = qiniu.bucket('qiniu-sdk-test', {
+            putToken: '%s'
+        });
+
+        qiniu.bind($('#btn_upload'), {})
+                .on('file', function(file) {
+
+                    buckets.putFile('aa', file, {}, function(err, reply) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log('success');
+                        }
+                    });
+                });
+
+        $('#set-nickname').submit(function (ev) {
+            chat.emit('nickname', $('#nick').val(), function (set) {
+                if (!set) {
+                    clear();
+                    return $('#chat').addClass('nickname-set');
+                }
+                $('#nickname-err').css('visibility', 'visible');
+            });
+            return false;
+        });
+
+        $('#btn_upload').bind('click', function(){
+            chat.emit('upload', null, function(bucket, token){
+                //uploader.bucket_init(bucket, token);
+                console.log('up');
+            });
+            return false;
+        });
+
+        $('#send-message').submit(function () {
+            chat.chat_msg('me', $('#message').val());
+            chat.emit('user message', $('#message').val());
+            clear();
+            $('#lines').get(0).scrollTop = 10000000;
+            return false;
+        });
+
+        function clear () {
+            $('#message').val('').focus();
+        };
+    });
+</script>
 </html>

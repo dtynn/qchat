@@ -7,7 +7,11 @@ sys.path.insert(0, './modules')
 from gevent import monkey
 monkey.patch_all()
 
+import json
 import logging
+from optparse import OptionParser
+
+from qiniu import conf as qConf, rs as qRs
 
 from socketio import socketio_manage
 from socketio.server import SocketIOServer
@@ -18,7 +22,21 @@ logging.basicConfig(level=logging.DEBUG,
                     format='[%(levelname)1.1s %(asctime)1.19s %(module)s:%(lineno)d] %(message)s')
 
 
+ak = ''
+sk = ''
+bucket = ''
+domain = ''
+policy = ''
+
+
 class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
+    def initialize(self):
+        #settings
+        self.qBucket = bucket
+        self.qDomain = domain
+        self.qPolicy = policy
+        return
+
     def on_nickname(self, nickname):
         self.request['nicknames'].append(nickname)
         self.socket.session['nickname'] = nickname
@@ -48,7 +66,9 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         return message
 
     def on_upload(self, data):
-        return ['token']
+        token = self.qPolicy.token()
+        print '!!'
+        return [self.qBucket, token]
 
 
 class Application(object):
@@ -69,7 +89,7 @@ class Application(object):
             return ['<h1>Welcome. '
                     'Try the <a href="/chat.html">chat</a> example.</h1>']
 
-        if path.startswith('static/') or path == 'chat.html' or path =='simple_chat.html':
+        if path.startswith('static/') or path == 'upload.html' or path == 'chat.html' or path =='simple_chat.html':
             try:
                 data = open(path).read()
             except Exception as e:
@@ -100,6 +120,27 @@ def not_found(start_response):
 
 
 if __name__ == '__main__':
+#configs
+    optp = OptionParser()
+    optp.add_option('-c', '--conf', help='config file',
+                    dest='conf', default='config/config.conf')
+
+    opts, args = optp.parse_args()
+    confPath = opts.conf
+    with open(confPath, 'r') as conf:
+        confContent = conf.read()
+    conf = json.loads(confContent)
+
+    ak = str(conf.get('accesskey'))
+    sk = str(conf.get('secretkey'))
+    bucket = str(conf.get('bucket'))
+    domain = str(conf.get('domain'))
+
+    qConf.ACCESS_KEY = ak
+    qConf.SECRET_KEY = sk
+    policy = qRs.PutPolicy(bucket)
+    policy.expires = 600
+
     print 'Listening on port 8080 and on port 843 (flash policy server)'
     SocketIOServer(('0.0.0.0', 18080), Application(),
                    resource="socket.io", policy_server=True,
