@@ -195,3 +195,25 @@
     padding: 0 10px;
     text-align: right;
 }
+.icon-picture {
+    width: 20px;
+    height: 20px;
+    font-size: 18px;
+}
+.chat_pic {
+    position: relative;
+    left: -20px;
+    bottom: -5px;
+}
+.clearfix {
+    *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+    display: table;
+    line-height: 0;
+    content: "";
+}
+.clearfix:after {
+    clear: both;
+}

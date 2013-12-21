@@ -61,6 +61,10 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
                           self.socket.session['nickname'], msg)
         return
 
+    def on_user_pic(self, key):
+        self.emit_to_room('main_room', 'pic_to_room', self.socket.session['nickname'], key)
+        return
+
     def recv_message(self, message):
         print "PING!!!", message
         return message
