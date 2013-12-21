@@ -38,6 +38,9 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         return
 
     def on_nickname(self, nickname):
+        nickname = nickname.strip()
+        if nickname in self.request['nicknames']:
+            return [True]
         self.request['nicknames'].append(nickname)
         self.socket.session['nickname'] = nickname
         self.broadcast_event('announcement', '%s has connected' % nickname)
