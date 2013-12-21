@@ -110,7 +110,6 @@
         },
         //send handlers
         request_uptoken: function() {
-            console.log(uploader.valid_bucket());
             if (uploader.valid_bucket() !== true) {
                 this.emit('upload', null, function(bucket, token, expires){
                     uploader.bucket_init(bucket, token, expires);
@@ -160,13 +159,11 @@
                     if (err) {
                         console.log(err);
                     } else {
-                        console.log(reply);
                         var key = reply['key'];
                         chat.emit('user_pic', key);
                         chat.chat_pic('me', key);
                     }
                 });
-                console.log(uploader._bucket.queue);
             }
         }
     };
