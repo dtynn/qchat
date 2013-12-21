@@ -101,8 +101,13 @@
             chat.chat_msg('System', e ? e : 'A unknown error occurred');
         },
         //send handlers
-        send_nickname: function() {
-
+        request_uptoken: function() {
+            console.log(uploader.valid_bucket());
+            if (uploader.valid_bucket() !== true) {
+                this.emit('upload', null, function(bucket, token, expires){
+                    uploader.bucket_init(bucket, token, expires);
+                });
+            }
         },
         //render
         chat_msg: function(from, msg){
@@ -116,34 +121,38 @@
 
     };
 
-    /** var uploader = {
+    var uploader = {
         _bucket: null,
-        init: function(){
-            this.bucket_init('a', 'b')
-            qiniu.bind(document.getElementById('btn_upload'), {}).
-                    on('file', function(file) {
-                        this.upload(file);
-                    })
-        },
-        upload: function(file) {
-            if (this._bucket !== null) {
-                this._bucket.putFile(null, file, {}, function(err, reply){
-                    if (err) {
-                        console.log('up err');
-                    } else {
-                        console.log(reply);
-                    }
-                })
-            } else {
-                console.log('no bucket')
+        _updated: null,
+        _expires: null,
+        valid_bucket: function() {
+            var now = (new Date()).valueOf();
+            var valid = this._bucket !== null && this._updated !== null && this._expires !== null && this._updated + this._expires > now;
+            if (valid !== true) {
+                this._bucket = null;
             }
+            return valid
         },
-        bucket_init: function(bucket, token) {
+        bucket_init: function(bucket, token, expires) {
             this._bucket = qiniu.bucket(bucket, {
                 putToken: token
             });
+            this._updated = (new Date()).valueOf();
+            this._expires = expires * 1000;
+        },
+        upload_start: function(key, file) {
+            if (this._bucket !== null) {
+                this._bucket.putFile(key, file, {}, function(err, reply) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log(reply);
+                    }
+                });
+                console.log(uploader._bucket.queue);
+            }
         }
-    }; **/
+    };
 
     // DOM manipulation
     $(function () {
@@ -154,20 +163,9 @@
             chat._socket.disconnect();
         });
 
-        var buckets = qiniu.bucket('qiniu-sdk-test', {
-            putToken: '%s'
-        });
-
         qiniu.bind($('#btn_upload'), {})
                 .on('file', function(file) {
-
-                    buckets.putFile('aa', file, {}, function(err, reply) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log('success');
-                        }
-                    });
+                    uploader.upload_start(null, file);
                 });
 
         $('#set-nickname').submit(function (ev) {
@@ -181,12 +179,8 @@
             return false;
         });
 
-        $('#btn_upload').bind('click', function(){
-            chat.emit('upload', null, function(bucket, token){
-                //uploader.bucket_init(bucket, token);
-                console.log('up');
-            });
-            return false;
+        $('input.qiniu-transparent').click(function(){
+            chat.request_uptoken();
         });
 
         $('#send-message').submit(function () {

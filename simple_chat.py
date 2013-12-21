@@ -67,8 +67,9 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
 
     def on_upload(self, data):
         token = self.qPolicy.token()
+        clientExpires = 300
         print '!!'
-        return [self.qBucket, token]
+        return [self.qBucket, token, clientExpires]
 
 
 class Application(object):
