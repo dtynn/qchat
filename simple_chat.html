@@ -58,7 +58,10 @@
         connect: function() {
             this.disconnect();
             this._socket = io.connect('http://test.com:18080', {
-                transports: ['websocket', 'flashsocket']
+                transports: ['flashsocket', 'websocket'],
+                'connect timeout': 20000,
+                'try multiple transports' : false,
+                'reconnection delay': 2000
             });
         },
         disconnect: function() {
@@ -164,6 +167,8 @@
                         chat.chat_pic('me', key);
                     }
                 });
+            } else {
+                console.log('no bucket');
             }
         }
     };
@@ -193,7 +198,7 @@
             return false;
         });
 
-        $('input.qiniu-transparent').click(function(){
+        $('input.qiniu-transparent').mouseover(function(){
             chat.request_uptoken();
         });
 
